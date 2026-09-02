@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://img.icons8.com/pulsar-color/96/pangolin.png" width="96" height="96" alt="tatu">
+</p>
+
 # tatu
 
 > Acha ambientes virtuais Python espalhados pelo computador, salva a lista de dependencias de cada projeto e apaga os ambientes para liberar espaco em disco.
