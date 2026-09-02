@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://img.icons8.com/external-microdots-premium-microdot-graphic/64/external-animal-animal-kingdom-vol1-microdots-premium-microdot-graphic-9.png" width="64" height="64" alt="tatu">
-</p>
+<img src="assets/icon-tatu.png" alt="Tatu Icon" width="100px" align="right">
 
 # tatu
 
