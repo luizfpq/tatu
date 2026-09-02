@@ -20,19 +20,23 @@ Apagar na mao funciona, mas e arriscado: se voce nao anotou as versoes exatas do
 
 Precisa de Python 3.10 ou mais novo para rodar a ferramenta. Ela consegue processar venvs de qualquer versao do Python, essa exigencia e so para o proprio tatu.
 
+Instale direto do repositorio:
+
 ```bash
-pip install tatu
+pip install "git+https://github.com/luizfpq/tatu.git"
 ```
 
-Ou direto do codigo-fonte:
+Ou clonando o codigo primeiro:
 
 ```bash
-git clone git@github.com:luizfpq/tatu.git
+git clone https://github.com/luizfpq/tatu.git
 cd tatu
-pip install -e .
+pip install .
 ```
 
 Nao instala nada alem de si mesmo: usa somente a biblioteca padrao do Python.
+
+> Observacao: ainda nao esta publicado no PyPI, entao `pip install tatu` (sem o endereco do repositorio) nao funciona. Use uma das formas acima.
 
 ---
 
