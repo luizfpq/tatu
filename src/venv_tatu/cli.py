@@ -89,6 +89,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="componente de caminho a ignorar (pode repetir)",
     )
     p.add_argument(
+        "--locate",
+        action="store_true",
+        help="usa o indice do 'locate' para acelerar a busca (com fallback para walk)",
+    )
+    p.add_argument(
         "--version",
         action="version",
         version=f"tatu {__version__}",
@@ -113,13 +118,49 @@ def _format_outcome(o: Outcome) -> str:
     return " ".join(parts)
 
 
+def _resolve_locate(requested: bool) -> bool:
+    """Decide se usa o acelerador locate, avisando o usuario conforme o caso."""
+    if not requested:
+        return False
+
+    from . import speedup
+
+    backend = speedup.detect_locate()
+    if backend is None:
+        print(
+            "Aviso: 'locate' nao esta instalado. Prosseguindo com a varredura "
+            "normal (os.walk).\n"
+            "  Para acelerar buscas futuras, instale um destes e rode 'updatedb':\n"
+            "    Debian/Ubuntu:  sudo apt install plocate\n"
+            "    Fedora:         sudo dnf install plocate\n"
+            "    macOS:          ja incluso (locate)\n"
+        )
+        return False
+
+    age = speedup.database_age_seconds(backend)
+    if age is not None:
+        hours = age / 3600
+        if hours >= 24:
+            print(
+                f"Aviso: o indice do {backend.kind} tem ~{hours/24:.1f} dia(s). "
+                "Venvs recentes podem nao aparecer; rode 'sudo updatedb' se preciso.\n"
+            )
+        else:
+            print(f"Usando indice {backend.kind} (idade ~{hours:.1f}h).\n")
+    else:
+        print(f"Usando indice {backend.kind}.\n")
+    return True
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
     roots = [Path(r) for r in (args.roots or ["."])]
     ignores = DEFAULT_IGNORES + tuple(args.ignore)
 
-    venvs = list(find_venvs(roots, ignores=ignores))
+    use_locate = _resolve_locate(args.locate)
+
+    venvs = list(find_venvs(roots, ignores=ignores, use_locate=use_locate))
     if not venvs:
         print("Nenhum venv encontrado.")
         return 0

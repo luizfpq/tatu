@@ -90,28 +90,78 @@ def _contains_subseq(parts: tuple[str, ...], sub: tuple[str, ...]) -> bool:
     return False
 
 
+def _venv_from_cfg(cfg: Path) -> Venv:
+    venv_path = cfg.parent
+    return Venv(
+        path=venv_path,
+        project_dir=venv_path.parent,
+        python_version=_read_version(cfg),
+    )
+
+
 def find_venvs(
     roots: list[Path],
     ignores: tuple[str, ...] = DEFAULT_IGNORES,
+    *,
+    use_locate: bool = False,
 ) -> Iterator[Venv]:
     """Percorre ``roots`` e devolve um :class:`Venv` para cada pyvenv.cfg.
 
     Nao entra dentro de um venv ja encontrado (evita falsos positivos de
     venvs aninhados dentro de site-packages).
+
+    Se ``use_locate`` for verdadeiro e um banco ``locate`` cobrir os roots,
+    a consulta ao indice e usada no lugar do walk (mais rapido). Quando o
+    indice nao cobre os roots, cai automaticamente no walk.
     """
+    if use_locate:
+        yield from _find_via_locate_or_walk(roots, ignores)
+        return
+
+    yield from _find_via_walk(roots, ignores)
+
+
+def _find_via_walk(
+    roots: list[Path], ignores: tuple[str, ...]
+) -> Iterator[Venv]:
     seen: list[Path] = []
     for root in roots:
         root = root.expanduser().resolve()
         if not root.exists():
             continue
         for cfg in _walk_pyvenv(root, ignores, seen):
-            venv_path = cfg.parent
-            yield Venv(
-                path=venv_path,
-                project_dir=venv_path.parent,
-                python_version=_read_version(cfg),
-            )
-            seen.append(venv_path)
+            yield _venv_from_cfg(cfg)
+            seen.append(cfg.parent)
+
+
+def _find_via_locate_or_walk(
+    roots: list[Path], ignores: tuple[str, ...]
+) -> Iterator[Venv]:
+    from . import speedup
+
+    backend = speedup.detect_locate()
+    if backend is None:
+        yield from _find_via_walk(roots, ignores)
+        return
+
+    norm_roots = [r.expanduser().resolve() for r in roots]
+    hits = speedup.find_via_locate(backend, norm_roots)
+    if hits is None:
+        # indice nao cobre os roots -> fallback confiavel
+        yield from _find_via_walk(roots, ignores)
+        return
+
+    # de-duplica e nao reporta venvs aninhados dentro de outro
+    seen: list[Path] = []
+    root_list = norm_roots
+    for cfg in sorted(hits):
+        venv_path = cfg.parent
+        if any(_is_within(venv_path, s) for s in seen):
+            continue
+        if _is_ignored(venv_path, root_list, ignores):
+            continue
+        yield _venv_from_cfg(cfg)
+        seen.append(venv_path)
 
 
 def _walk_pyvenv(

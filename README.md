@@ -56,6 +56,9 @@ tatu ~/Documentos --apply --no-remove
 
 # ignora um caminho especifico
 tatu ~ --ignore .venvs --ignore backups
+
+# usa o indice do 'locate' para acelerar (com fallback automatico)
+tatu ~ --locate
 ```
 
 ### Opcoes
@@ -70,6 +73,7 @@ tatu ~ --ignore .venvs --ignore backups
 | `--include-base` | Inclui `pip`/`setuptools`/`wheel` no requirements |
 | `--requirements-name NOME` | Nome do arquivo de saida (padrao `requirements.txt`) |
 | `--ignore DIR` | Componente de caminho a ignorar (repetivel) |
+| `--locate` | Usa o indice do `locate` para acelerar a busca |
 
 ---
 
@@ -87,6 +91,17 @@ Para congelar as dependencias, o tatu tenta duas estrategias, nessa ordem:
 2. **Fallback:** le os diretorios `*.dist-info` / `*.egg-info` do `site-packages` e extrai `nome==versao`.
 
 O fallback e o diferencial: venvs sincronizados costumam ter o interpretador quebrado (o symlink do `python` aponta para um caminho que nao veio na sync, ou o modulo `pip` sumiu). Mesmo assim os metadados dos pacotes continuam no disco, e o tatu consegue reconstruir o `requirements.txt`.
+
+### Busca: walk ou locate
+
+Por padrao o tatu usa `os.walk` para achar os `pyvenv.cfg`. E confiavel e sempre reflete o estado atual do disco.
+
+Com `--locate`, ele tenta usar o indice do `locate`/`plocate`/`mlocate`, que e muito mais rapido. Como esse indice pode estar desatualizado, o tatu:
+
+- valida que cada `pyvenv.cfg` retornado ainda existe (descarta fantasmas de venvs ja removidos);
+- filtra apenas os que estao dentro dos diretorios pedidos;
+- **cai automaticamente no walk** se o indice nao cobrir os roots (ex.: `updatedb` que nao indexa a HOME);
+- avisa a idade do banco e, se `locate` nao estiver instalado, informa como instalar e prossegue com o walk sem instalar nada.
 
 ### Versao do Python
 
