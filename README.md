@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.icons8.com/pulsar-color/96/pangolin.png" width="96" height="96" alt="tatu">
+  <img src="https://img.icons8.com/external-microdots-premium-microdot-graphic/64/external-animal-animal-kingdom-vol1-microdots-premium-microdot-graphic-9.png" width="64" height="64" alt="tatu">
 </p>
 
 # tatu
