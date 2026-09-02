@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+*.egg
+
+# venvs (a propria razao de existir do tatu)
+.venv/
+venv/
+env/
+
+# testes / cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# editores
+.vscode/
+.idea/
+*.swp
+
+# SO
+.DS_Store
