@@ -10,7 +10,7 @@ O tatu e um bicho que cava tocas organizadas, com espaco separado para cada cois
 
 Todo projeto Python costuma ter um ambiente virtual: uma pasta (`venv`, `.venv`, `env`) que guarda as bibliotecas daquele projeto. Essa pasta e grande, cheia de arquivos, e nao precisa ser guardada nem versionada. O que importa mesmo e a lista de dependencias, porque com ela voce recria o ambiente em segundos.
 
-Na pratica esses venvs vao se acumulando. Pior ainda quando uma pasta de projeto esta dentro de um servico de sincronizacao: o venv inteiro sobe para a nuvem sem necessidade, ocupando gigabytes e, muitas vezes, chegando quebrado do outro lado.
+Na pratica esses venvs vao se acumulando pelo disco. E as coisas pioram quando um projeto acaba dentro de uma pasta sincronizada. Guardar codigo em pasta de sincronizacao ja e uma pratica ruim por si so, mas quando isso acontece o estrago aumenta: o venv inteiro sobe para a nuvem sem necessidade, ocupa gigabytes e costuma chegar quebrado do outro lado.
 
 Apagar na mao funciona, mas e arriscado: se voce nao anotou as versoes exatas do que estava instalado, perde essa informacao. O tatu resolve os dois lados. Antes de apagar qualquer venv, ele grava o `requirements.txt` daquele projeto. Se um dia precisar do ambiente de volta, basta um `pip install -r requirements.txt`.
 
